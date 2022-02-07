@@ -6,8 +6,12 @@ from pathlib import Path
 
 
 class OpmlReader:
-    def __init__(self):
+    FORMAT_DELIMITERS = {"txt": "\t", "csv": ","}
+    FORMATTING = {"txt": "·", "csv": ""}
+
+    def __init__(self, format_type):
         self.elements = []
+        self.format_type = format_type
 
     def run(self, input_file):
 
@@ -31,18 +35,21 @@ class OpmlReader:
         self.write_output(input_file, buf)
 
     def add_element(self, node, parent_id):
-        element = f"{parent_id}· {node.attrib['text']}"
+        element = f"{parent_id}{self.get_formatting()} {node.attrib['text']}"
         self.elements.append(element)
 
         children = node.findall("outline")
 
-        parent_id += "\t"
+        parent_id += self.FORMAT_DELIMITERS[self.format_type]
 
         for x in children:
             self.add_element(x, parent_id)
 
+    def get_formatting(self):
+        return self.FORMATTING[self.format_type]
+
     def write_output(self, input_file, buf):
-        output_file = input_file.split(".", 2)[0] + ".txt"
+        output_file = input_file.split(".", 2)[0] + "." + self.format_type
         if self.output_file_exists(output_file):
             print(f"Not overwriting {output_file}")
             return
@@ -60,4 +67,8 @@ class OpmlReader:
 
 
 if __name__ == "__main__":
-    OpmlReader().run(sys.argv[1])
+    input_file = sys.argv[1]
+    format_type = "txt"
+    if len(sys.argv) > 2:
+        format_type = sys.argv[2]
+    OpmlReader(format_type).run(input_file)
