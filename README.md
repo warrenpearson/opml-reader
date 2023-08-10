@@ -15,3 +15,5 @@ python3 opml_reader.py <your_data>.opml
 
 cat <your_data>.txt
 ```
+
+N.B. Any existing output files are not overwritten.
