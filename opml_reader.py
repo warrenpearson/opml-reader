@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-
 import sys
 import xml.etree.ElementTree as eTree
 from pathlib import Path
 
 
 class OpmlReader:
-    FORMAT_DELIMITERS = {"txt": "\t", "csv": ","}
+    FORMAT_DELIMITERS = {"txt": "    ", "csv": ","}
     FORMATTING = {"txt": "·", "csv": ""}
 
     def __init__(self, format_type):
@@ -35,7 +33,7 @@ class OpmlReader:
         self.write_output(input_file, buf)
 
     def add_element(self, node, parent_id):
-        element = f"{parent_id}{self.get_formatting()} {node.attrib['text']}"
+        element = f"{parent_id}{self.get_formatting(node)} {node.attrib['text']}"
         self.elements.append(element)
 
         children = node.findall("outline")
@@ -45,8 +43,15 @@ class OpmlReader:
         for x in children:
             self.add_element(x, parent_id)
 
-    def get_formatting(self):
-        return self.FORMATTING[self.format_type]
+    def get_formatting(self, node):
+        status = node.attrib.get("_status")
+        if self.format_type != "txt" or not status:
+            return self.FORMATTING[self.format_type]
+
+        if status == "indeterminate":
+            return "-"
+
+        return "x"
 
     def write_output(self, input_file, buf):
         output_file = input_file.split(".", 2)[0] + "." + self.format_type
