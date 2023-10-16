@@ -4,8 +4,8 @@ from pathlib import Path
 
 
 class OpmlReader:
-    FORMAT_DELIMITERS = {"txt": "    ", "csv": ","}
-    FORMATTING = {"txt": "·", "csv": ""}
+    FORMAT_DELIMITERS = {"txt": "    ", "csv": ",", "md": "- [ ] "}
+    FORMATTING = {"txt": "·", "csv": "", "md": ""}
 
     def __init__(self, format_type):
         self.elements = []
@@ -32,11 +32,17 @@ class OpmlReader:
         print(buf)
         self.write_output(input_file, buf)
 
-    def add_element(self, node, parent_id):
+    def add_element(self, node, parent_id, level=0):
+        # hack
+        if "- [ ] - [ ] " in parent_id:
+            parent_id = "    - [ ] "
+
         element = f"{parent_id}{self.get_formatting(node)} {node.attrib['text']}"
         self.elements.append(element)
 
         children = node.findall("outline")
+        # this would potentially allow me to avoid the hack
+        # level += 1
 
         parent_id += self.FORMAT_DELIMITERS[self.format_type]
 
@@ -50,6 +56,9 @@ class OpmlReader:
 
         if status == "indeterminate":
             return "-"
+
+        if status == "unchecked":
+            return u'\u25EF'
 
         return "x"
 
