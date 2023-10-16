@@ -4,8 +4,8 @@ from pathlib import Path
 
 
 class OpmlReader:
-    FORMAT_DELIMITERS = {"txt": "    ", "csv": ",", "md": "- [ ] "}
-    FORMATTING = {"txt": "·", "csv": "", "md": ""}
+    FORMAT_DELIMITERS = {"txt": "    ", "csv": ",", "bear": "- [ ] "}
+    FORMATTING = {"txt": "·", "csv": "", "bear": ""}
 
     def __init__(self, format_type):
         self.elements = []
